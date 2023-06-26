@@ -1,0 +1,11 @@
+# Ignore target directory
+target/
+
+# Ignore Emacs backup files
+*.rs.bk
+
+# Ignore Vim swap files
+*.swp
+
+# Ignore log files
+*.log
