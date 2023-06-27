@@ -9,3 +9,6 @@ target/
 
 # Ignore log files
 *.log
+
+.vscode
+.idea
