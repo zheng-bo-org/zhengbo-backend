@@ -1,15 +1,15 @@
 #[derive(Debug)]
-pub struct User {
-    pub(crate) token: String,
-    pub(crate) username: String,
-    pub(crate) pwd: String
+pub struct User<'a> {
+    pub(crate) token: &'a String,
+    pub(crate) username: &'a String,
+    pub(crate) pwd: &'a String
 }
 
 pub trait UserRouters {
     fn is_token_expired(self: &Self) -> bool;
 }
 
-impl UserRouters for User  {
+impl UserRouters for User<'_>  {
     fn is_token_expired(self: &Self) -> bool {
         return self.token == "test"
     }
