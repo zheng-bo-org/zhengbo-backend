@@ -1,6 +1,6 @@
-
+use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct Exception<T> {
-    exceptions: T
+pub struct Exception<T, S> {
+    exceptions: HashMap<T,S>
 }

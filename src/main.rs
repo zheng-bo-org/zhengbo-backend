@@ -1,11 +1,15 @@
 use crate::server::server::{Server};
-use crate::web_frameworks::axum;
 use crate::web_frameworks::web::Web;
 use log4rs;
 use log::info;
 pub mod server;
 pub mod db;
 pub mod web_frameworks;
+use serde::{
+    Deserialize,
+    Serialize
+};
+use serde_json;
 
 async fn init_log() {
     log4rs::init_file("config/log4rs.yaml", Default::default()).unwrap();
@@ -13,7 +17,11 @@ async fn init_log() {
     info!("booting up");
 }
 
-#[tokio::main]
+#[derive(Debug, Deserialize)]
+pub struct User {
+
+}
+
 async fn main() {
     init_log().await;
     // let user: User = User {
