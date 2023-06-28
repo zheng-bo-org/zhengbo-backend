@@ -1,7 +1,8 @@
 use crate::db::db::DB;
 use crate::server::global_exceptions::exceptions::Exception;
-use std::{collections::HashMap, fmt};
-use std::fmt::{Debug, Formatter};
+use std::{collections::HashMap};
+use std::any::Any;
+use std::fmt::Debug;
 
 #[derive(Debug)]
 pub enum RouterMethod {
@@ -12,10 +13,10 @@ pub enum RouterMethod {
     PATCH,
 }
 #[derive(Debug)]
-pub struct Body<'a, T> {
-    current_user_id: &'a String,
-    body: HashMap<&'a String, &'a T>,
-    headers: HashMap<&'a String, &'a String>,
+pub struct Request<> {
+    pub current_user_id: String,
+    pub body: HashMap<String, Box<dyn Any>>,
+    pub headers: HashMap<String, String>,
 }
 
 #[derive(Debug)]
@@ -26,20 +27,15 @@ pub enum ErrType {
 }
 
 #[derive(Debug)]
-pub struct Response<'a, T> {
-    body: &'a T,
-    err_type: &'a ErrType,
-    err_code: &'a String,
+pub struct Response<T> {
+    pub body: T,
+    pub err_type: ErrType,
+    pub err_code: String,
+    pub add_headers: HashMap<String, String>
 }
 
-pub struct Router<'a, RT, BT, SELF> {
-    pub path: &'a String,
-    pub method: &'a RouterMethod,
-    pub router_handler: fn(body: &Body<BT>, db: &DB, Exception<SELF>) -> Response<'a, RT>
-}
-
-impl<'a, RT, BT, SELF> Debug for Router<'a, RT, BT, SELF> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Router")
-    }
+pub struct Router<RT, SELF> {
+    pub path: String,
+    pub method: RouterMethod,
+    pub router_handler: fn(body: Request, db: &DB, Exception<SELF>) -> Response<RT>
 }

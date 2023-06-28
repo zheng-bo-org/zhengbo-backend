@@ -12,3 +12,5 @@ target/
 
 .vscode
 .idea
+log
+jmeter.log

@@ -1,0 +1,25 @@
+appenders:
+  stdout:
+    kind: console
+    encoder:
+      pattern: "{h({d(%Y-%m-%d %H:%M:%S)(utc)}UTC - {l}: {m}{n})}"
+  requests:
+    kind: rolling_file
+    path: "log/requests.log"
+    encoder:
+      pattern: "{h({d(%Y-%m-%d %H:%M:%S)(utc)}UTC - {l}: {m}{n})}"
+    policy:
+      trigger:
+        kind: size
+        limit: 50kb
+      roller:
+        kind: fixed_window
+        base: 1
+        count: 2000
+        pattern: "log/requests{}.log"
+
+root:
+  level: info
+  appenders:
+    - stdout
+    - requests
