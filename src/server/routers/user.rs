@@ -1,27 +1,48 @@
+use std::alloc::System;
+use std::collections::HashMap;
 use std::fmt::Debug;
+use std::time::SystemTime;
 use crate::db::db::DB;
-use crate::server::router::{Request, Router, RouterMethod, Response, ErrType};
-use crate::server::router::RouterMethod::{
-    GET,
-    POST,
-    DELETE
-};
 use serde::{
     Serialize,
-    Deserialize
+    Deserialize,
 };
+use crate::server::router_loader::RouterLoader;
+use axum::{
+    Router,
+    extract::{
+        Query,
+        Path,
+    },
+    Json,
+};
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use axum::routing::get;
+use log::info;
+use serde_json::{json, Value};
 
-#[derive(Debug, Deserialize)]
-pub struct BodyOfLoginValidation {
 
+pub struct User {}
+
+async fn refresh_token(Query(param): Query<HashMap<String, String>>) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+    let old_token = match param.get("token") {
+        Some(token) => token,
+        None => {
+            let err_body = json!({
+               "message": "Token is required."
+            });
+            return Err((StatusCode::BAD_REQUEST, Json(err_body)));
+        }
+    };
+
+    Ok(Json(json!({
+         "token": old_token
+     })))
 }
 
-// fn is_login_expired(req: Request, db: &DB) -> Response {
-//     // return Response{
-//     //     body: Box::new(()),
-//     //     err_type: ErrType::Success,
-//     //     err_code: "".to_string(),
-//     //     add_headers: Default::default()
-//     // }
-//
-// }
+impl RouterLoader for User {
+    fn load(self: &Self, router: Router) -> Router {
+        return router.route("/users/token", get(refresh_token));
+    }
+}

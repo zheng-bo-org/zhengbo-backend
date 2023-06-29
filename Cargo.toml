@@ -7,8 +7,10 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.68"
+axum = {version="0.6.18", feature="full"}
 hyper = "0.14.27"
 log = "0.4.19"
 log4rs = "1.2.0"
 serde = "1.0.164"
 serde_json = "1.0.99"
+tokio = { version = "1.29.0", features = ["full"] }
