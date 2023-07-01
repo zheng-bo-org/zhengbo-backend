@@ -1,8 +1,14 @@
 package org.zhengbo.backend.cache;
 
-public interface Cache {
-    <T> void setJson(String key, T clz, long expireAtInMs);
-    <T> T getJson(String key, Class<T> clz);
+import java.util.HashMap;
 
-    void removeKey(String key);
+public interface Cache {
+    interface Prefix {
+    }
+
+    <T> void setJson(Class<? extends Prefix> prefix, String key, T clz, long expireAtInMs);
+
+    <T> T getJson(Class<? extends Prefix> prefix, String key, Class<T> clz);
+
+    void removeKey(Class<? extends Prefix> prefix, String key);
 }

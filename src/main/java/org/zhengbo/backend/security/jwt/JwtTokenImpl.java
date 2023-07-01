@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.zhengbo.backend.cache.Cache;
+import org.zhengbo.backend.cache.prefixs.UserWebAccessToken;
 import org.zhengbo.backend.model.user.TypeOfUser;
 import org.zhengbo.backend.service.user.TokenService;
 import org.zhengbo.backend.utils.JSON;
@@ -22,7 +23,6 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenImpl implements TokenService {
     private final Cache cache;
-
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
     @Value("${application.security.jwt.expiration}")
@@ -66,7 +66,7 @@ public class JwtTokenImpl implements TokenService {
 
     @Override
     public boolean isAbleToCreateNewTokenForTheUser(Long userId) {
-        var token = cache.getJson(userId.toString(), Token.class);
+        var token = cache.getJson(UserWebAccessToken.class, userId.toString(), Token.class);
         return token == null || token.tokens.size() == 0;
     }
 
@@ -76,13 +76,13 @@ public class JwtTokenImpl implements TokenService {
         List<String> tokens = new ArrayList<>(1);
         tokens.add(token);
 
-        cache.setJson(customUserDetails.userId().toString(), new Token(customUserDetails.userId(), tokens), refreshExpiration);
+        cache.setJson(UserWebAccessToken.class, customUserDetails.userId().toString(), new Token(customUserDetails.userId(), tokens), refreshExpiration);
         return token;
     }
 
     @Override
     public boolean isTokenValid(String token, CustomUserDetails customUserDetails) {
-        var tokenInCache = cache.getJson(customUserDetails.userId().toString(), Token.class);
+        var tokenInCache = cache.getJson(UserWebAccessToken.class, customUserDetails.userId().toString(), Token.class);
         if (tokenInCache == null) {
             return false;
         }
@@ -124,7 +124,8 @@ public class JwtTokenImpl implements TokenService {
 
     @Override
     public void makeTheTokenInvalid(String token) {
-        cache.removeKey(token);
+        var user = tokenToUserDetails(token);
+        cache.removeKey(UserWebAccessToken.class, user.userId().toString());
     }
 
     @Override
