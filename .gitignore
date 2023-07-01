@@ -17,3 +17,4 @@ jmeter.log
 .idea
 build
 src/main/resources/env.yaml
+.gradle
