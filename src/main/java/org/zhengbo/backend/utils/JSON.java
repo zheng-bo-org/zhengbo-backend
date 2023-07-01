@@ -1,6 +1,7 @@
 package org.zhengbo.backend.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,15 @@ public class JSON {
             return objectMapper.readValue(json, clz);
         } catch (JsonProcessingException e) {
             log.error("Failed to convert the json to target clz. The json is: {} and the clz is {}. The error is: ", json, clz.getName(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T fromJsonToTypeRef(String json, TypeReference<T> typeRef) {
+        try {
+            return objectMapper.readValue(json, typeRef);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to convert the json to target typeRef. The json is: {} and the typeRef is {}. The error is: ", json, typeRef, e);
             throw new RuntimeException(e);
         }
     }
