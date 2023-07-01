@@ -1,10 +1,10 @@
                                        Copyright 2023 zheng-bo-org
 
                                                  Notes 
-1.The contents of any directory starting with `asset`(` should be ignored) within this project are not allowed to be used publicly. 
+1.The contents of any directory starting with `asset`(` should be ignored, `asset` equals to asset) within this project are not allowed to be used publicly. 
 If you wish to use them, you must obtain the author’s consent. Unauthorized use may result in legal action.
 
 
-2.Without violating the first statement (The contents of any directory starting with `asset`(` should be ignored) within this project are not allowed to be used publicly. 
+2.Without violating the first statement (The contents of any directory starting with `asset`(` should be ignored, `asset` equals to asset) within this project are not allowed to be used publicly. 
 If you wish to use them, you must obtain the author’s consent. Unauthorized use may result in legal action.), you are free to use any code in this project. 
 However, if you want to use the code from this project, you must open source your project.
