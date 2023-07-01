@@ -13,8 +13,8 @@
                              Notes
 
   This license applies only to the code portion of this project. 
-The contents of the /asset directory in this project are not allowed for public use. 
-If you want to use them, you must obtain the author’s consent.
+The contents of any directory starting with ‘/asset’ within this project are not allowed to be used publicly. 
+If you wish to use them, you must obtain the author’s consent.
 
 
                             Preamble
