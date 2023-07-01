@@ -33,25 +33,13 @@ public class MessageGenerator {
         return new Messages(key, messages);
     }
 
-    private static void writeToFile(String json, File file) throws Exception{
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write(json);
-        }
-    }
-
-    public static String getJson() throws Exception{
+    public static HashMap<String, HashMap<String, String>> getMessages() throws Exception{
         var classes = new Reflections("org.zhengbo.backend.global_exceptions").getTypesAnnotatedWith(GlobalException.MessageAbleException.class);
         var messages = classes.stream().map(MessageGenerator::toMessages).toList();
         HashMap<String, HashMap<String, String>> finalMessages = new HashMap<>(16);
         for (Messages msg : messages) {
             finalMessages.put(msg.key, msg.messages());
         }
-        return JSON.toJson(finalMessages);
-    }
-
-    public static void generateMsg(File file) throws Exception {
-        System.out.println("generateMsg!!!!");
-        String json = getJson();
-        writeToFile(json, file);
+        return finalMessages;
     }
 }

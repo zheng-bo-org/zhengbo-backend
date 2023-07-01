@@ -25,13 +25,8 @@ public class GlobalExceptionHandler implements HandlerExceptionResolver {
     private final HashMap<String, HashMap<String, String>> messages = new HashMap<>(16);
 
     public GlobalExceptionHandler() throws Exception {
-        File file = ResourceUtils.getFile("classpath:exceptionMessages.json");
-        String json = new String(Files.readAllBytes(file.toPath()));
-        TypeReference<HashMap<String, HashMap<String, String>>> typeRef = new TypeReference<>() {
-        };
-        var messages = JSON.fromJsonToTypeRef(json, typeRef);
+        var messages = MessageGenerator.getMessages();
         this.messages.putAll(messages);
-        log.info("The messages are: {}", this.messages);
     }
 
     private void noSuchMessageFoundError(ModelAndView view, Exception ex) {
@@ -43,6 +38,7 @@ public class GlobalExceptionHandler implements HandlerExceptionResolver {
 
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        ex.printStackTrace();
         String key = ex.getClass().getSimpleName();
         HashMap<String, String> msg = messages.get(key);
         response.setContentType("application/json");
