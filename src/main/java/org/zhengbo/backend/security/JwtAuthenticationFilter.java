@@ -7,8 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.zhengbo.backend.service.user.TokenService;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("path? {}", request.getServletPath());
-        log.info("do auth....");
         if (request.getServletPath().contains("/users/auth")) {
-            log.info("auth pass...");
             filterChain.doFilter(request, response);
             return;
         }
@@ -51,7 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (tokenService.isTokenValid(jwt, (TokenService.CustomUserDetails) userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
-                        null,
+                        new HashMap<String, String>(){{
+                            put("jwt", jwt);
+                        }},
                         userDetails.getAuthorities()
                 );
                 authToken.setDetails(

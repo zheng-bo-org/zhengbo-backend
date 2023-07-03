@@ -8,9 +8,14 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.zhengbo.backend.cache.Cache;
 import org.zhengbo.backend.cache.prefixs.UserWebAccessToken;
+import org.zhengbo.backend.global_exceptions.UserAuthException;
 import org.zhengbo.backend.model.user.TypeOfUser;
 import org.zhengbo.backend.service.user.TokenService;
 import org.zhengbo.backend.utils.JSON;
@@ -43,7 +48,7 @@ public class JwtTokenImpl implements TokenService {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(combineUsername(new CombinedUsername(customUserDetails.username(), customUserDetails.userType())))
+                .setSubject(combineUsername(new CombinedUsername(customUserDetails.userId(), customUserDetails.username(), customUserDetails.userType())))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -67,23 +72,22 @@ public class JwtTokenImpl implements TokenService {
     @Override
     public boolean isAbleToCreateNewTokenForTheUser(Long userId) {
         var token = cache.getJson(UserWebAccessToken.class, userId.toString(), Token.class);
-        return token == null || token.tokens.size() == 0;
+        return token.map(value -> value.tokens.size() == 0).orElse(true);
     }
 
     @Override
     public String signToken(CustomUserDetails customUserDetails) throws RuntimeException {
         var token = generateToken(customUserDetails);
-        List<String> tokens = new ArrayList<>(1);
-        tokens.add(token);
-
-        cache.setJson(UserWebAccessToken.class, customUserDetails.userId().toString(), new Token(customUserDetails.userId(), tokens), refreshExpiration);
+        var tokenInTheCache = cache.getJson(UserWebAccessToken.class, customUserDetails.userId().toString(), Token.class).orElse(new Token(customUserDetails.userId(), new ArrayList<>(2)));
+        tokenInTheCache.tokens.add(token);
+        cache.setJson(UserWebAccessToken.class, customUserDetails.userId().toString(), tokenInTheCache, refreshExpiration);
         return token;
     }
 
     @Override
     public boolean isTokenValid(String token, CustomUserDetails customUserDetails) {
         var tokenInCache = cache.getJson(UserWebAccessToken.class, customUserDetails.userId().toString(), Token.class);
-        if (tokenInCache == null) {
+        if (tokenInCache.isEmpty()) {
             return false;
         }
 
@@ -125,7 +129,13 @@ public class JwtTokenImpl implements TokenService {
     @Override
     public void makeTheTokenInvalid(String token) {
         var user = tokenToUserDetails(token);
-        cache.removeKey(UserWebAccessToken.class, user.userId().toString());
+        var tokenInCache = cache.getJson(UserWebAccessToken.class, user.userId().toString(), Token.class);
+        if (tokenInCache.isEmpty()) {
+            return;
+        }
+
+        tokenInCache.get().tokens.removeIf(t -> t.equals(token));
+        cache.setJson(UserWebAccessToken.class, user.userId().toString(), Token.class, jwtExpiration);
     }
 
     @Override
@@ -137,15 +147,50 @@ public class JwtTokenImpl implements TokenService {
     @Override
     public CombinedUsername deCombineUsername(String strOfUsernameAndUserTypeCombined) {
         var usernameAndUserType = strOfUsernameAndUserTypeCombined.split(",");
-        var username = usernameAndUserType[0];
-        var userType = usernameAndUserType[1];
+        var userId = usernameAndUserType[0];
+        var username = usernameAndUserType[1];
+        var userType = usernameAndUserType[2];
         TypeOfUser type = TypeOfUser.valueOf(userType);
 
-        return new CombinedUsername(username, type);
+        return new CombinedUsername(Long.parseLong(userId), username, type);
     }
 
     @Override
     public String combineUsername(CombinedUsername username) {
-        return username.username() + "," + username.type().name();
+        return username.userId() + "," + username.username() + "," + username.type().name();
+    }
+
+    private void avoidAnonymousUser(Authentication authentication) {
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            throw new UserAuthException(UserAuthException.UserAuthExceptionCode.UN_AUTHENTICATED, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Override
+    public Long getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        avoidAnonymousUser(authentication);
+        String username = authentication.getName();
+        var combinedUsername = deCombineUsername(username);
+        return combinedUsername.userId();
+    }
+
+    private Authentication getNonAnonymousUserAuthInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        avoidAnonymousUser(authentication);
+        return authentication;
+    }
+
+    private String getCurrentToken() {
+        var auth = getNonAnonymousUserAuthInfo();
+        var credentials = (HashMap<String, String>) auth.getCredentials();
+        return credentials.get("jwt");
+    }
+
+    @Override
+    public String refreshTokenForCurrentUser() {
+        var currentToken = getCurrentToken();
+        var userDetails = tokenToUserDetails(currentToken);
+        return signToken(userDetails);
     }
 }

@@ -9,6 +9,7 @@ import org.zhengbo.backend.cache.prefixs.UserWebAccessToken;
 import org.zhengbo.backend.utils.JSON;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -45,10 +46,13 @@ public class RedisCache implements Cache {
     }
 
     @Override
-    public <T> T getJson(Class<? extends Prefix> prefix, String key, Class<T> clz) {
+    public <T> Optional<T> getJson(Class<? extends Prefix> prefix, String key, Class<T> clz) {
         String theKey = generateKey(prefix, key);
         String value = redisTemplate.opsForValue().get(theKey);
-        return JSON.fromJson(value, clz);
+        if (value == null) {
+            return Optional.empty();
+        }
+        return Optional.of(JSON.fromJson(value, clz));
     }
 
     @Override

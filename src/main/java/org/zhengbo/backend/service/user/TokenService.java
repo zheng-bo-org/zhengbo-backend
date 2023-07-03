@@ -66,11 +66,19 @@ public interface TokenService {
 
     CustomUserDetails tokenToUserDetails(String token);
 
-    record CombinedUsername(String username, TypeOfUser type) {
+    record CombinedUsername(Long userId,String username, TypeOfUser type) {
 
     }
 
     CombinedUsername deCombineUsername(String username);
 
     String combineUsername(CombinedUsername username);
+
+    record SimpleUserDetails(Long userId) {
+
+    }
+
+    Long getCurrentUser();
+
+    String refreshTokenForCurrentUser();
 }

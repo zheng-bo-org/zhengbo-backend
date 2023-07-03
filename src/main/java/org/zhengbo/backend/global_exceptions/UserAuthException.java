@@ -13,7 +13,10 @@ public class UserAuthException extends RuntimeException implements GlobalExcepti
         USERNAME_DUPLICATED,
 
         @EnumMsgDesc(desc = "User not found")
-        USER_NOT_FOUND
+        USER_NOT_FOUND,
+
+        @EnumMsgDesc(desc = "User not logged in")
+        UN_AUTHENTICATED
     }
 
     public UserAuthException(UserAuthExceptionCode code, HttpStatus statusCode) {
