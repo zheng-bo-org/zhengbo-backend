@@ -18,3 +18,4 @@ jmeter.log
 build
 src/main/resources/env.yaml
 .gradle
+out

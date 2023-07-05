@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @RequiredArgsConstructor
 @Entity(name = "user")
-@SequenceGenerator(name = "user_seq", initialValue = 50)
+@SequenceGenerator(name = "user_seq")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")

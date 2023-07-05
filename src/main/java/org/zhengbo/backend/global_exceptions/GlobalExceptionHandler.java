@@ -1,13 +1,17 @@
 package org.zhengbo.backend.global_exceptions;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
@@ -19,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class GlobalExceptionHandler implements HandlerExceptionResolver {
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -39,12 +44,30 @@ public class GlobalExceptionHandler implements HandlerExceptionResolver {
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         ex.printStackTrace();
+
+
         String key = ex.getClass().getSimpleName();
         HashMap<String, String> msg = messages.get(key);
         response.setContentType("application/json");
 
         ModelAndView model = new ModelAndView();
         model.setView(new MappingJackson2JsonView());
+
+        if (ex instanceof HttpMessageNotReadableException) {
+            model.addObject("errCode", "INVALID_DATA_FORMAT");
+            model.addObject("errMsg", ex.getMessage());
+            model.setStatus(HttpStatus.BAD_REQUEST);
+            return model;
+        }
+
+        if (ex instanceof MethodArgumentNotValidException) {
+            var bindRs = ((MethodArgumentNotValidException) ex).getBindingResult();
+
+            model.addObject("errCode", "BAD_REQUEST");
+            model.addObject("errMsg", Objects.requireNonNull(bindRs.getFieldError()).getDefaultMessage());
+            model.setStatus(HttpStatus.BAD_REQUEST);
+            return model;
+        }
 
 
         if (msg == null) {

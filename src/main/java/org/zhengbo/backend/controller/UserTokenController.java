@@ -2,7 +2,9 @@ package org.zhengbo.backend.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,5 +23,11 @@ public class UserTokenController {
     public ResponseEntity<?> refreshToken() {
         String token = tokenService.refreshTokenForCurrentUser();
         return ResponseEntity.ok(new RefreshTokenRs(token));
+    }
+
+    @DeleteMapping(value = "/current")
+    public ResponseEntity<GlobalEmptyResponse> signOut() {
+        tokenService.makeCurrentTokenInvalid();
+        return ResponseEntity.ok(new GlobalEmptyResponse());
     }
 }

@@ -12,7 +12,7 @@ import java.util.Date;
 @Entity(name = "school")
 @Data
 @RequiredArgsConstructor
-@SequenceGenerator(name = "school_seq", initialValue = 50)
+@SequenceGenerator(name = "school_seq")
 public class School {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "school_seq")

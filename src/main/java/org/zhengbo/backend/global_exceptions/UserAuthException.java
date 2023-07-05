@@ -15,9 +15,16 @@ public class UserAuthException extends RuntimeException implements GlobalExcepti
         @EnumMsgDesc(desc = "User not found")
         USER_NOT_FOUND,
 
+        @EnumMsgDesc(desc = "Incorrect password")
+        INCORRECT_PASSWORD(),
+
         @EnumMsgDesc(desc = "User not logged in")
-        UN_AUTHENTICATED
+        UN_AUTHENTICATED,
+
+        @EnumMsgDesc(desc = "User name too short, the length of the username must >= 4")
+        USERNAME_TOO_SHORT
     }
+
 
     public UserAuthException(UserAuthExceptionCode code, HttpStatus statusCode) {
         this.code = code.name();

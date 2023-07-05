@@ -139,6 +139,16 @@ public class JwtTokenImpl implements TokenService {
     }
 
     @Override
+    public void makeCurrentTokenInvalid() {
+        Long userId = getCurrentUser();
+        String currentToken = getCurrentToken();
+        var token = cache.getJson(UserWebAccessToken.class, userId.toString(), Token.class);
+        token.ifPresent(theToken -> {
+            theToken.tokens.removeIf(t -> t.equals(currentToken));
+        });
+    }
+
+    @Override
     public CustomUserDetails tokenToUserDetails(String token) {
         var json = (String) extractAllClaims(token).get("json");
         return JSON.fromJson(json, CustomUserDetails.class);

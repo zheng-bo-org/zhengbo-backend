@@ -9,7 +9,7 @@ public interface UserAuthService {
      */
     String signIn(String username, String pwd, TypeOfUser type);
 
-    /**
+    /**e
      * log out
      * @param userId which user should be sign ou.
      */

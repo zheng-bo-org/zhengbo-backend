@@ -64,6 +64,8 @@ public interface TokenService {
 
     void makeTheTokenInvalid(String token);
 
+    void makeCurrentTokenInvalid();
+
     CustomUserDetails tokenToUserDetails(String token);
 
     record CombinedUsername(Long userId,String username, TypeOfUser type) {

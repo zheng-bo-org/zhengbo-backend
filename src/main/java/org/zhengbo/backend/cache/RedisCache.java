@@ -60,4 +60,19 @@ public class RedisCache implements Cache {
         String theKey = generateKey(prefix, key);
         redisTemplate.opsForValue().getAndDelete(theKey);
     }
+
+    @Override
+    public boolean setValueIfAbsent(String key, String val) {
+        return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(key, val));
+    }
+
+    @Override
+    public String getValue(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    @Override
+    public void removeValue(String key) {
+        redisTemplate.opsForValue().getAndDelete(key);
+    }
 }
