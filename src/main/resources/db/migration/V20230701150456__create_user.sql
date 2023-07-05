@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS school (
                                       updated_at TIMESTAMP
 );
 
+
 -- Create the student table if it does not exist
 CREATE TABLE IF NOT EXISTS student (
                                        id BIGINT PRIMARY KEY,
@@ -55,3 +56,33 @@ CREATE TABLE IF NOT EXISTS student (
                                        FOREIGN KEY (user_id) REFERENCES user(id),
                                        FOREIGN KEY (school_id) REFERENCES school(id)
 );
+
+create table role_seq
+(
+    next_val bigint null
+);
+insert into role_seq (next_val) values (1);
+
+create table school_seq
+(
+    next_val bigint null
+);
+insert into school_seq (next_val) values (1);
+
+create table student_seq
+(
+    next_val bigint null
+);
+insert into student_seq (next_val) values (1);
+
+create table user_role_seq
+(
+    next_val bigint null
+);
+insert into user_role_seq (next_val) values (1);
+
+create table user_seq
+(
+    next_val bigint null
+);
+insert into user_seq (next_val) values (1);
