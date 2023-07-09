@@ -19,3 +19,4 @@ build
 src/main/resources/env.yaml
 .gradle
 out
+bin
