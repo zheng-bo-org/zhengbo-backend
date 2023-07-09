@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface UserGeneralService  {
     Optional<User> findUserByUsername(TypeOfUser type, String username);
+
+    User findUserById(Long userId);
 }

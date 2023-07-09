@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhengbo.backend.dml.Dml;
-import org.zhengbo.backend.global_exceptions.UserAuthException;
+import org.zhengbo.backend.global_exceptions.user.UserAuthException;
 import org.zhengbo.backend.model.user.TypeOfUser;
 import org.zhengbo.backend.model.user.User;
 import org.zhengbo.backend.repository.UserRepository;

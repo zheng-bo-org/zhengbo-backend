@@ -1,12 +1,11 @@
-package org.zhengbo.backend.global_exceptions;
+package org.zhengbo.backend.global_exceptions.user;
 
 import org.springframework.http.HttpStatus;
+import org.zhengbo.backend.global_exceptions.BaseGlobalException;
+import org.zhengbo.backend.global_exceptions.GlobalException;
 
 @GlobalException.MessageAbleException
-public class UserAuthException extends RuntimeException implements GlobalException{
-    private final String code;
-    private final HttpStatus statusCode;
-
+public class UserAuthException extends BaseGlobalException {
     @MessagesInEnum
     public enum UserAuthExceptionCode{
         @EnumMsgDesc(desc = "Duplicated username on user sign up.")
@@ -27,17 +26,6 @@ public class UserAuthException extends RuntimeException implements GlobalExcepti
 
 
     public UserAuthException(UserAuthExceptionCode code, HttpStatus statusCode) {
-        this.code = code.name();
-        this.statusCode = statusCode;
-    }
-
-    @Override
-    public String getCode() {
-        return this.code;
-    }
-
-    @Override
-    public HttpStatus getStatusCode() {
-        return this.statusCode;
+        super(code.name(), statusCode);
     }
 }

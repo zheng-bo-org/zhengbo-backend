@@ -2,6 +2,28 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.1'
 	id 'io.spring.dependency-management' version '1.1.0'
+	id 'com.adarshr.test-logger' version '3.2.0'
+}
+
+apply plugin: 'com.adarshr.test-logger'
+testlogger {
+	theme 'standard'
+	showExceptions true
+	showStackTraces true
+	showFullStackTraces false
+	showCauses true
+	slowThreshold 2000
+	showSummary true
+	showSimpleNames false
+	showPassed true
+	showSkipped true
+	showFailed true
+	showOnlySlow false
+	showStandardStreams false
+	showPassedStandardStreams true
+	showSkippedStandardStreams true
+	showFailedStandardStreams true
+	logLevel 'lifecycle'
 }
 
 group = 'org.zhengbo'
@@ -41,10 +63,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.reflections:reflections:0.10.2'
 	runtimeOnly 'org.springframework.integration:spring-integration-redis:6.1.1'
-	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
+	testlogger {
+		theme 'standard-parallel' // task level
+	}
 }

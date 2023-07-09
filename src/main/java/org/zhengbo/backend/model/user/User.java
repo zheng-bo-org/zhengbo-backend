@@ -30,6 +30,9 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Student student;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserSecurityQa> securityQas;
+
     @Column(name = "created_at")
     @CreationTimestamp
     private Date createdAt;
