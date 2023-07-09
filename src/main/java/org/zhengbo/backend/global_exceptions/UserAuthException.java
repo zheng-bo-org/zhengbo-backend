@@ -16,7 +16,7 @@ public class UserAuthException extends RuntimeException implements GlobalExcepti
         USER_NOT_FOUND,
 
         @EnumMsgDesc(desc = "Incorrect password")
-        INCORRECT_PASSWORD(),
+        INCORRECT_PASSWORD,
 
         @EnumMsgDesc(desc = "User not logged in")
         UN_AUTHENTICATED,

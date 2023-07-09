@@ -36,7 +36,7 @@ public class GlobalExceptionHandler implements HandlerExceptionResolver {
 
     private void noSuchMessageFoundError(ModelAndView view, Exception ex) {
         view.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        view.addObject("errCode","UNKNOWN_ERROR".toLowerCase());
+        view.addObject("errCode","UNKNOWN_ERROR");
         view.addObject("errMsg", "No messages found for the Exception: " + ex.getClass().getSimpleName());
         log.error("No messages found for the Exception: {}", ex.getClass().getName());
     }
