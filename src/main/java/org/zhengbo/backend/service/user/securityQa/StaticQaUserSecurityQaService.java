@@ -73,4 +73,10 @@ public class StaticQaUserSecurityQaService implements UserSecurityQaService {
         var qaList = userSecurityQaRepository.findAllByUser(user);
         return qaList.stream().collect(Collectors.toMap(UserSecurityQa::getQuestion, UserSecurityQa::getAnswer));
     }
+
+    @Override
+    public List<UserSecurityQa> getQaOfTheUser(Long userId) {
+        var user = userGeneralService.findUserById(userId);
+        return userSecurityQaRepository.findAllByUser(user);
+    }
 }

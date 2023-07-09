@@ -2,35 +2,34 @@
 package org.zhengbo.backend.security;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
+    private final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserDetailsService userDetailsService;
 
 
     @Bean
@@ -43,21 +42,27 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        List<String> whiteLists = TokenNotRequiredApiScanner.scan();
+        var permitAll = Arrays.asList("/users/auth/**", "/v2/api-docs/**",
+                "/configuration/ui/**",
+                "/swagger-resources/**",
+                "/configuration/security/**",
+                "/swagger-ui**",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/api-docs/**",
+                "/webjars/**",
+                "/error/**");
+        whiteLists.addAll(permitAll);
+
+
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
                         (requests) ->
                                 requests.
-                                requestMatchers("/users/auth/**", "/v2/api-docs/**",
-                                        "/configuration/ui/**",
-                                        "/swagger-resources/**",
-                                        "/configuration/security/**",
-                                        "/swagger-ui**",
-                                        "/swagger-ui.html",
-                                        "/swagger-ui/**",
-                                        "/api-docs/**",
-                                        "/webjars/**",
-                                        "/error/**")
+                                requestMatchers(whiteLists.toArray(new String[0]))
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

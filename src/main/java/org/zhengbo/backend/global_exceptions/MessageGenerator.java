@@ -36,7 +36,7 @@ public class MessageGenerator {
     }
 
     public static HashMap<String, HashMap<String, String>> getMessages() throws Exception{
-        Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage("org.zhengbo.backend"));
+        Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage("org.zhengbo.backend.global_exceptions"));
         var classes = reflections.getTypesAnnotatedWith(GlobalException.MessageAbleException.class);
         var messages = classes.stream().map(MessageGenerator::toMessages).toList();
         HashMap<String, HashMap<String, String>> finalMessages = new HashMap<>(16);
