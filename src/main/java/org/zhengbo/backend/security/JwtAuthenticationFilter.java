@@ -41,23 +41,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        username = tokenService.deCombineUsername(jwt);
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(jwt);
-            if (tokenService.isTokenValid(jwt, (TokenService.CustomUserDetails) userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        new HashMap<String, String>(){{
-                            put("jwt", jwt);
-                        }},
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            var userDetailsFromJwt = tokenService.tokenToUserDetails(jwt);
+            if (userDetailsFromJwt.username() != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(tokenService.combineUsername(new TokenService.CombinedUsername(userDetailsFromJwt.userId(), userDetailsFromJwt.username(), userDetailsFromJwt.userType())));
+                if (tokenService.isTokenValid(jwt, (TokenService.CustomUserDetails) userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            new HashMap<String, String>() {{
+                                put("jwt", jwt);
+                            }},
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        }catch (Exception ex) {
+            log.error("Jwt validation failed. The error is: {}", ex.getMessage());
         }
+
         filterChain.doFilter(request, response);
     }
 }

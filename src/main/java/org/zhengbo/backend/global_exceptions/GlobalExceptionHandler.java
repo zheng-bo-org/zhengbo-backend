@@ -44,10 +44,6 @@ public class GlobalExceptionHandler implements HandlerExceptionResolver {
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         ex.printStackTrace();
-
-
-        String key = ex.getClass().getSimpleName();
-        HashMap<String, String> msg = messages.get(key);
         response.setContentType("application/json");
 
         ModelAndView model = new ModelAndView();
@@ -70,6 +66,8 @@ public class GlobalExceptionHandler implements HandlerExceptionResolver {
         }
 
 
+        String key = ex.getClass().getSimpleName();
+        HashMap<String, String> msg = messages.get(key);
         if (msg == null) {
             noSuchMessageFoundError(model, ex);
             return model;
@@ -77,7 +75,7 @@ public class GlobalExceptionHandler implements HandlerExceptionResolver {
 
         GlobalException globalException = (GlobalException) ex;
         response.setStatus(globalException.getStatusCode().value());
-        String code = globalException.getCode().toLowerCase();
+        String code = globalException.getCode();
         String realMsg = msg.get(code);
         model.addObject("errCode", code);
         model.addObject("errMsg", realMsg);

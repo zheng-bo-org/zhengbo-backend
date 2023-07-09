@@ -1,6 +1,7 @@
 package org.zhengbo.backend.global_exceptions;
 
 import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 import org.zhengbo.backend.utils.JSON;
 
 import java.io.File;
@@ -15,7 +16,8 @@ public class MessageGenerator {
 
     private static Messages toMessages(Class<?> clz) {
         String key = clz.getSimpleName();
-        var classes = new Reflections(clz).getTypesAnnotatedWith(GlobalException.MessagesInEnum.class);
+        Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage("org.zhengbo.backend"));
+        var classes = reflections.getTypesAnnotatedWith(GlobalException.MessagesInEnum.class);
         HashMap<String, String> messages = new HashMap<>(16);
         for (Class<?> messagesInEnumClz : classes) {
             for (Field field : messagesInEnumClz.getFields()) {
@@ -24,7 +26,7 @@ public class MessageGenerator {
                 for (GlobalException.EnumMsgDesc descAnnotation : descSet) {
                     desc = descAnnotation.desc();
                 }
-                var name = field.getName().toLowerCase();
+                var name = field.getName();
 
                 messages.put(name, desc);
             }
@@ -34,7 +36,8 @@ public class MessageGenerator {
     }
 
     public static HashMap<String, HashMap<String, String>> getMessages() throws Exception{
-        var classes = new Reflections("org.zhengbo.backend.global_exceptions").getTypesAnnotatedWith(GlobalException.MessageAbleException.class);
+        Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage("org.zhengbo.backend"));
+        var classes = reflections.getTypesAnnotatedWith(GlobalException.MessageAbleException.class);
         var messages = classes.stream().map(MessageGenerator::toMessages).toList();
         HashMap<String, HashMap<String, String>> finalMessages = new HashMap<>(16);
         for (Messages msg : messages) {

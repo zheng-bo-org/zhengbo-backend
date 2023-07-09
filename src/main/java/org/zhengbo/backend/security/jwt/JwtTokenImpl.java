@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.zhengbo.backend.cache.Cache;
 import org.zhengbo.backend.cache.prefixs.UserWebAccessToken;
@@ -55,12 +56,16 @@ public class JwtTokenImpl implements TokenService {
                 .compact();
     }
 
+    record ExtraJsonClaims(Long userId, String username, String pwd, TypeOfUser type) {
+
+    }
+
     public String generateToken(
             CustomUserDetails customUserDetails
     ) {
-        var json = JSON.toJson(customUserDetails);
+        var json = new ExtraJsonClaims(customUserDetails.userId(), customUserDetails.username(), customUserDetails.pwd(), customUserDetails.userType());
         HashMap<String, String> extraClaims = new HashMap<>(1) {{
-            put("json", json);
+            put("json", JSON.toJson(json));
         }};
         return buildToken(extraClaims, customUserDetails, jwtExpiration);
     }
@@ -87,7 +92,7 @@ public class JwtTokenImpl implements TokenService {
     @Override
     public boolean isTokenValid(String token, CustomUserDetails customUserDetails) {
         var tokenInCache = cache.getJson(UserWebAccessToken.class, customUserDetails.userId().toString(), Token.class);
-        if (tokenInCache.isEmpty()) {
+        if (tokenInCache.isEmpty() || !tokenInCache.get().tokens.contains(token)) {
             return false;
         }
 
@@ -133,25 +138,21 @@ public class JwtTokenImpl implements TokenService {
         if (tokenInCache.isEmpty()) {
             return;
         }
-
         tokenInCache.get().tokens.removeIf(t -> t.equals(token));
-        cache.setJson(UserWebAccessToken.class, user.userId().toString(), Token.class, jwtExpiration);
+        cache.setJson(UserWebAccessToken.class, user.userId().toString(), new Token(tokenInCache.get().userId, tokenInCache.get().tokens()), jwtExpiration);
     }
 
     @Override
     public void makeCurrentTokenInvalid() {
-        Long userId = getCurrentUser();
         String currentToken = getCurrentToken();
-        var token = cache.getJson(UserWebAccessToken.class, userId.toString(), Token.class);
-        token.ifPresent(theToken -> {
-            theToken.tokens.removeIf(t -> t.equals(currentToken));
-        });
+        makeTheTokenInvalid(currentToken);
     }
 
     @Override
     public CustomUserDetails tokenToUserDetails(String token) {
-        var json = (String) extractAllClaims(token).get("json");
-        return JSON.fromJson(json, CustomUserDetails.class);
+        var json =  (String) extractAllClaims(token).get("json");
+        var extraClaims = JSON.fromJson(json, ExtraJsonClaims.class);
+        return new CustomUserDetails(extraClaims.userId, extraClaims.username, extraClaims.pwd, extraClaims.type, null);
     }
 
     @Override
@@ -180,9 +181,8 @@ public class JwtTokenImpl implements TokenService {
     public Long getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         avoidAnonymousUser(authentication);
-        String username = authentication.getName();
-        var combinedUsername = deCombineUsername(username);
-        return combinedUsername.userId();
+        CustomUserDetails userDetails = (TokenService.CustomUserDetails)authentication.getPrincipal();
+        return userDetails.userId();
     }
 
     private Authentication getNonAnonymousUserAuthInfo() {

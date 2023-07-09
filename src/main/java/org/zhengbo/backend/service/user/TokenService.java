@@ -1,5 +1,6 @@
 package org.zhengbo.backend.service.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.zhengbo.backend.model.user.Role;
@@ -14,7 +15,7 @@ public interface TokenService {
         List<Role> findRoles(Long userId);
     }
 
-    record CustomUserDetails(Long userId, String username, String pwd, TypeOfUser userType, UserRolesFinder userRolesFinder) implements org.springframework.security.core.userdetails.UserDetails {
+    record CustomUserDetails(Long userId, String username, String pwd, TypeOfUser userType, @JsonIgnore UserRolesFinder userRolesFinder) implements org.springframework.security.core.userdetails.UserDetails {
 
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
