@@ -201,6 +201,8 @@ public class JwtTokenImpl implements TokenService {
     public String refreshTokenForCurrentUser() {
         var currentToken = getCurrentToken();
         var userDetails = tokenToUserDetails(currentToken);
-        return signToken(userDetails);
+        String signedToken = signToken(userDetails);
+        makeTheTokenInvalid(currentToken);
+        return signedToken;
     }
 }
