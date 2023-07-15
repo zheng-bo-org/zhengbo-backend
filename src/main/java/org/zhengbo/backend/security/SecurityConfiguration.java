@@ -45,20 +45,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        List<String> whiteLists = TokenNotRequiredApiScanner.scan();
-        var permitAll = Arrays.asList("/users/auth/**", "/v2/api-docs/**",
-                "/configuration/ui/**",
-                "/swagger-resources/**",
-                "/configuration/security/**",
-                "/swagger-ui**",
-                "/swagger-ui.html",
-                "/swagger-ui/**",
-                "/api-docs/**",
-                "/webjars/**",
-                "/error/**");
-        whiteLists.addAll(permitAll);
-
-
+        List<String> whiteLists = TokenNotRequiredApiScanner.getWhiteList();
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
                         (requests) ->
                                 requests.

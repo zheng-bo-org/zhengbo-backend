@@ -32,11 +32,4 @@ public class UserTokenController {
         String token = tokenService.refreshTokenForCurrentUser();
         return ResponseEntity.ok(new RefreshTokenRs(token));
     }
-
-    @DeleteMapping(value = "/current")
-    @Operation(summary = "sign out current user")
-    public ResponseEntity<GlobalEmptyResponse> signOut() {
-        tokenService.makeCurrentTokenInvalid();
-        return ResponseEntity.ok(new GlobalEmptyResponse());
-    }
 }

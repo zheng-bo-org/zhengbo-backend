@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TokenNotRequiredApiScanner {
@@ -37,7 +38,7 @@ public class TokenNotRequiredApiScanner {
         throw new RuntimeException("No path could be found in the method: " + method.getName());
     }
 
-    public static List<String> scan() {
+    private static List<String> scan() {
         Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage("org.zhengbo.backend.controller"));
         var classes = reflections.getTypesAnnotatedWith(RequestMapping.class);
         List<String> paths = new ArrayList<>(16);
@@ -54,5 +55,22 @@ public class TokenNotRequiredApiScanner {
         }
 
         return paths;
+    }
+
+    public static List<String> getWhiteList() {
+        var whiteList = scan();
+        var permitAll = Arrays.asList("/users/auth/**", "/v2/api-docs/**",
+                "/configuration/ui/**",
+                "/swagger-resources/**",
+                "/configuration/security/**",
+                "/swagger-ui**",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/api-docs/**",
+                "/webjars/**",
+                "/error/**",
+                "/openapi.yaml");
+        whiteList.addAll(permitAll);
+        return whiteList;
     }
 }

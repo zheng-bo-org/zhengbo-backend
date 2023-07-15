@@ -1,0 +1,204 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+  version: 0.1.9
+  contact:
+    name: API Support
+    email: zhengma60@gmail.com
+
+servers:
+  - url: http://localhost:8080
+    description: local test server
+  - url: http://test.zhengbo.love
+    description: remote test server
+tags:
+  - name: User Auth
+    description: User Auth includes signIn signUp etc...
+  - name: User Token
+    description: User Token API includes refresh token etc...
+  - name: User Security
+    description: User security API includes security-qa etc...
+paths:
+  /users/auth/sign-in:
+    post:
+      tags:
+        - User Auth
+      security: [ ]
+      summary: Sign in by username and pwd and user type
+      description: Sign for users.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signInReq'
+      responses:
+        '200': # status code
+          description: sign in success. Ignore errCode and errMsg on success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signInRes'
+        '400':
+          description: IncorrectPassword
+        "404":
+          description: UserNotFound
+  /users/auth/sign-up:
+    post:
+      tags:
+        - User Auth
+      security: []
+      summary: sign up
+      description: Sign up a user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signUpReq'
+      responses:
+        '200':
+          description: sign up success. ignore errCode and errMsg on success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signUpRes'
+        '400':
+          description: username too short or username duplicated.
+  /users/me/tokens:
+    put:
+      tags:
+        - User Token
+      summary: refresh token of current user.
+      description: refresh token of current user.
+      responses:
+        '200':
+          description: sign up success. ignore errCode and errMsg on success.
+          content:
+            application/json:
+              schema:
+               properties:
+                 token:
+                   type: string
+                   description: new token
+        '401':
+          description: invalid token
+        '403':
+          description: no permission
+  /users/security-qa/questions:
+    get:
+      tags:
+        - User Security
+      summary: Get security question list
+      description: Get the questions that available for the user to answer
+      responses:
+        '200':
+          description: question list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  codesOfTheQuestions:
+                    type: array
+                    items:
+                      description: code of question
+                      type: string
+        '401':
+          description: invalid token
+        '403':
+          description: no permission
+  /users/security-qa/mine:
+    get:
+      tags:
+        - User Security
+      summary: Get qa of current user
+      description: Get the question and answer that user already uploaded.
+      responses:
+        '200':
+          description: qa list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questionAndAnswerMappings:
+                    type: object
+                    description: Key is the code of question, value is the answer of current user.
+        '401':
+          description: invalid token
+        '403':
+          description: no permission
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    signInReq:
+      type: object
+      required:
+        - username
+        - pwd
+        - type
+      properties:
+        username:
+          type: string
+          description: username
+        pwd:
+          type: string
+          description: password
+        type:
+          $ref: '#/components/schemas/TypeOfUser'
+    signInRes:
+      type: object
+      properties:
+        token:
+          type: string
+        errCode:
+          type: string
+          enum:
+            - USER_NOT_FOUND
+            - INCORRECT_PASSWORD
+        errMsg:
+          type: string
+    signUpReq:
+      type: object
+      required:
+        - username
+        - pwd
+        - type
+      properties:
+        username:
+          description: username
+          type: string
+        pwd:
+          description: password
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeOfUser'
+    signUpRes:
+      type: object
+      properties:
+        token:
+          type: string
+          description: token
+        errCode:
+          type: string
+          enum:
+            - USERNAME_TOO_SHORT
+            - USERNAME_DUPLICATED
+        errMsg:
+          type: string
+    TypeOfUser:
+      type: string
+      description: Type of user
+      enum:
+        - STUDENT
+        - TEACHER
+        - PARENT
+
+security:
+  - bearerAuth: [ ]
