@@ -9,13 +9,16 @@
     [reitit.ring.middleware.muuntaja :as muuntaja]
     [reitit.ring.middleware.parameters :as parameters]
     [reitit.swagger :as swagger]
-    [zhengbo.backend.web.controllers.users :as user-handlers]))
+    [zhengbo.backend.web.controllers.users :as user-handlers]
+    [zhengbo.backend.web.middleware.auth :as auth-middleware]))
 
 (def route-data
   {:coercion   malli/coercion
    :muuntaja   formats/instance
    :swagger    {:id ::api}
-   :middleware [;; query-params & form-params
+
+   :middleware [
+                ;; query-params & form-params
                 parameters/parameters-middleware
                   ;; content-negotiation
                 muuntaja/format-negotiate-middleware
@@ -30,7 +33,8 @@
                   ;; coercing request parameters
                 coercion/coerce-request-middleware
                   ;; exception handling
-                exception/wrap-exception]})
+                exception/wrap-exception
+                auth-middleware/auth-middleware]})
 
 ;; Routes
 (defn user-api-routes [_opts]
