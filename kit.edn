@@ -1,0 +1,8 @@
+{:full-name "zhengbo/backend"
+ :ns-name   "zhengbo.backend"
+ :sanitized "zhengbo/backend"
+ :name      "backend"
+ :modules   {:root         "modules"
+             :repositories [{:url  "https://github.com/kit-clj/modules.git"
+                             :tag  "master"
+                             :name "kit-modules"}]}}

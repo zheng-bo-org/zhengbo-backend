@@ -22,3 +22,7 @@ out
 bin
 gen
 .settings
+zhengbo-backend.iml
+kit.git-config.edn
+backend.iml
+.cpcache
