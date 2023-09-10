@@ -9,7 +9,7 @@
     [reitit.ring.middleware.muuntaja :as muuntaja]
     [reitit.ring.middleware.parameters :as parameters]
     [reitit.swagger :as swagger]
-    [zhengbo.backend.web.controllers.users :as user-handlers]
+    [zhengbo.backend.web.controllers.systems :as systems-handlers]
     [zhengbo.backend.web.middleware.auth :as auth-middleware]))
 
 (def route-data
@@ -37,8 +37,8 @@
                 auth-middleware/auth-middleware]})
 
 ;; Routes
-(defn user-api-routes [_opts]
-  (vector ["/users/roles", {:get user-handlers/get-roles :allow-access true}]))
+(defn systems-routers [_opts]
+  (vector ["/systems/roles", {:get systems-handlers/get-roles}]))
 
 (defn default-routers [_opts]
   [["/swagger.json"
@@ -53,7 +53,7 @@
   ;;Defined the routers. The routers is a vector of vector data stucture
   ;;For example: [["router1", {:get handlerFunction}], ["router2" {:post handlerFunction}]]
   (concat (default-routers _opts)
-          (user-api-routes _opts)))
+          (systems-routers _opts)))
 
 
 (derive :reitit.routes/api :reitit/routes)
