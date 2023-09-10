@@ -12,6 +12,7 @@
 (defn access-allowed? [request]
   (let [ [token-is-valid user-id] (token-is-valid? (get-in request [:headers :token]))]
     (if token-is-valid
+      ;;The (:path request) may not get the correct url path. Should read the doc and find out the correct key.
       (let [permission-is-fine (what-about-permission? (:path request) user-id)]
         (if permission-is-fine [true nil] [false http-response/forbidden!]))
       [false http-response/unauthorized!])))
