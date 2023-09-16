@@ -1,7 +1,7 @@
 # zhengbo-backend
 Responsible for providing back-end services for ZHENGBO,such as login, registration, etc.
 
-# About the license (许可证说明)
+# About the license
 1.The contents of any directory starting with `asset` within this project are not allowed to be used publicly. 
 If you wish to use them, you must obtain the author’s consent. Unauthorized use may result in legal action.
 
